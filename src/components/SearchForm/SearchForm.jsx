@@ -1,14 +1,18 @@
-import PT from 'prop-types';
-export default function SearchForm({ value, onChangeValue }) {
+import { useDispatch, useSelector } from 'react-redux';
+import { phoneBookSlice } from 'redux/phoneBook.slice';
+
+export default function SearchForm() {
+  const filter = useSelector(state => state.filter);
+  const dispatch = useDispatch();
   const onChange = e => {
     const value = e.target.value.trim().toLowerCase();
-    onChangeValue(value);
+    dispatch(phoneBookSlice.actions.setFilter(value));
   };
   return (
     <form>
       <label>
         <input
-          value={value}
+          value={filter}
           onChange={onChange}
           type="text"
           placeholder="Search"
@@ -17,7 +21,3 @@ export default function SearchForm({ value, onChangeValue }) {
     </form>
   );
 }
-SearchForm.propTypes = {
-  value: PT.string.isRequired,
-  onChangeValue: PT.func.isRequired,
-};

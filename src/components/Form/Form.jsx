@@ -1,15 +1,30 @@
-import PT from 'prop-types';
+import { nanoid } from 'nanoid';
+import { useDispatch, useSelector } from 'react-redux';
+import { phoneBookSlice } from 'redux/phoneBook.slice';
 import s from './Form.module.css';
-export default function Form({ getValue }) {
+
+export default function Form() {
+  const dispatch = useDispatch();
+  const contacts = useSelector(state => state.items);
+
+  const getIsExistContact = contact =>
+    contacts.some(it => it.name === contact.name);
+
   const onSubmit = e => {
     e.preventDefault();
     const form = e.target;
     const contact = {
+      id: nanoid(4),
       name: form.elements.name.value,
       number: form.elements.number.value,
     };
 
-    getValue(contact);
+    if (getIsExistContact(contact)) {
+      alert(`${contact.name} is alredy in contacts`);
+      return;
+    }
+
+    dispatch(phoneBookSlice.actions.addItem(contact));
     form.reset();
   };
   return (
@@ -44,6 +59,3 @@ export default function Form({ getValue }) {
     </form>
   );
 }
-Form.propTypes = {
-  getValue: PT.func.isRequired,
-};

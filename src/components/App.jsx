@@ -1,16 +1,23 @@
-import { nanoid } from 'nanoid';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import Section from './Section/Section';
 import Form from './Form/Form';
 import SearchForm from './SearchForm/SearchForm';
 import ContactList from './ContactList/ContactList';
 import s from './App.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { phoneBookSlice } from 'redux/phoneBook.slice';
 
 const LOCAL_KEY = 'Task04/contacts';
 
 export function App() {
-  const [contacts, setContacts] = useState([]);
-  const [filter, setFilter] = useState('');
+  const dispatch = useDispatch();
+  const contacts = useSelector(state => {
+    return state.items;
+  });
+  const filter = useSelector(state => {
+    return state.filter;
+  });
+
   const isFirst = useRef(true);
 
   useEffect(() => {
@@ -18,33 +25,16 @@ export function App() {
       ? JSON.parse(localStorage.getItem(LOCAL_KEY)) ?? contacts
       : contacts;
 
-    if (isFirst.current) setContacts(() => [...newContacts]);
+    if (isFirst.current)
+      dispatch(phoneBookSlice.actions.setItems([...newContacts]));
 
     isFirst.current = false;
 
     localStorage.setItem(LOCAL_KEY, JSON.stringify(newContacts));
-  }, [contacts]);
-
-  const onChangeFilter = value => {
-    setFilter(value);
-  };
+  }, [contacts, dispatch]);
 
   const getFilteredContacts = () => {
     return contacts.filter(it => it.name.toLowerCase().includes(filter));
-  };
-
-  const addContact = contact => {
-    if (contacts.some(it => it.name === contact.name)) {
-      alert(`${contact.name} is alredy in contacts`);
-
-      return;
-    }
-    contact.id = nanoid(4);
-    setContacts([...contacts, contact]);
-  };
-
-  const deleteContact = id => {
-    setContacts(prev => prev.filter(it => it.id !== id));
   };
 
   const filteredContacts = getFilteredContacts();
@@ -52,15 +42,12 @@ export function App() {
   return (
     <div className={s.container}>
       <Section title="Phone Book">
-        <Form getValue={addContact} />
+        <Form />
       </Section>
 
       <Section title="Contacts">
-        <SearchForm value={filter} onChangeValue={onChangeFilter} />
-        <ContactList
-          contacts={filteredContacts}
-          deleteContact={deleteContact}
-        />
+        <SearchForm />
+        <ContactList contacts={filteredContacts} />
       </Section>
     </div>
   );
