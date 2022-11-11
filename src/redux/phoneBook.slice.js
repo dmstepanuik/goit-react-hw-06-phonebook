@@ -1,4 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
 
 const initialState = {
   filter: '',
@@ -22,3 +24,13 @@ export const phoneBookSlice = createSlice({
     },
   },
 });
+
+const persistConfig = {
+  key: 'react-06-phonebook',
+  storage,
+};
+
+export const persistedPhoneBookReduser = persistReducer(
+  persistConfig,
+  phoneBookSlice.reducer
+);
